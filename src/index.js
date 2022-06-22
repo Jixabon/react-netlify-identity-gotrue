@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from "react"
 
-import { useNetlifyIdentity } from "./useNetlifyIdentity"
+import { useNetlifyIdentity, AuthProviders } from "./useNetlifyIdentity"
 
 // Create a Context to hold the identity state
 const IdentityContext = createContext()
@@ -23,5 +23,6 @@ const NetlifyIdentityContext = ({ url, children }) => {
 
 export {
   NetlifyIdentityContext as default,
-  useIdentityContext
+  useIdentityContext,
+  AuthProviders
 }

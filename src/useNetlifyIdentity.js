@@ -5,6 +5,14 @@ const GO_TRUE_TOKEN_STORAGE_KEY = 'ni.goTrueToken'
 const USER_STORAGE_KEY = 'ni.user'
 const FOUR_MINUTES = 1000 * 60 * 4
 
+const AuthProviders = {
+  Bitbucket: 'bitbucket',
+  Facebook: 'facebook',
+  GitHub: 'github',
+  GitLab: 'gitlab',
+  Google: 'google',
+}
+
 // Api docs to come
 const useNetlifyIdentity = ({ url: _url }) => {
 
@@ -29,10 +37,10 @@ const useNetlifyIdentity = ({ url: _url }) => {
   const [goTrueTokenRefreshTimeoutId, setGoTrueTokenRefreshTimeoutId] = useState()
 
   // A flag for refreshing the goTrueToken - it's only used following an .update(), which
-  // sets the user, so there's no need to set the user too 
+  // sets the user, so there's no need to set the user too
   const [pendingGoTrueTokenRefresh, setPendingGoTrueTokenRefresh] = useState()
 
-  // Memoize the url to prevent useEffect changes since it won't change 
+  // Memoize the url to prevent useEffect changes since it won't change
   const url = useMemo(() => `${_url}/.netlify/identity`, [_url])
 
 
@@ -60,7 +68,7 @@ const useNetlifyIdentity = ({ url: _url }) => {
     _setGoTrueToken({ ...goTrueToken, expires_at })
   }, [])
 
-  // STUB - Exclusively refreshes the goTrueToken (doesn't touch user) -- 
+  // STUB - Exclusively refreshes the goTrueToken (doesn't touch user) --
   // doesn't check any expirations or anything, just goes ahead and refreshes
   const refreshGoTrueToken = useCallback(async () => {
     setGoTrueToken(await fetch(`${url}/token`, {
@@ -137,6 +145,12 @@ const useNetlifyIdentity = ({ url: _url }) => {
         urlToken?.type === 'invite'
       ) && goTrueToken) {
       logout()
+    }
+    else if (urlToken?.type === 'access') {
+      console.log('Logging in with Provider')
+      let token = urlToken
+      setUrlToken()
+      setGoTrueToken(token)
     }
     else if (urlToken?.type === 'confirmation') {
       console.log('Confirming User')
@@ -222,6 +236,15 @@ const useNetlifyIdentity = ({ url: _url }) => {
       throw new Error(token.error_description)
     }
     setGoTrueToken(token)
+  }
+
+  // API: Log in user via a 3rd party provider
+  const loginWithProvider = (provider) => {
+    if (Object.values(AuthProviders).includes(provider)) {
+      window.location = `${url}/authorize?provider=${provider}`;
+    } else {
+      console.error('Provider is not supported');
+    }
   }
 
   // API: Sign up as a new user - email, password, data: { full_name: }, etc.
@@ -318,6 +341,7 @@ const useNetlifyIdentity = ({ url: _url }) => {
   return {
     user,
     login,
+    loginWithProvider,
     logout,
     update,
     signup,
@@ -332,5 +356,6 @@ const useNetlifyIdentity = ({ url: _url }) => {
 }
 
 export {
-  useNetlifyIdentity
+  useNetlifyIdentity,
+  AuthProviders
 }
