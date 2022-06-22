@@ -7,7 +7,6 @@ const FOUR_MINUTES = 1000 * 60 * 4
 
 const AuthProviders = {
   Bitbucket: 'bitbucket',
-  Facebook: 'facebook',
   GitHub: 'github',
   GitLab: 'gitlab',
   Google: 'google',
